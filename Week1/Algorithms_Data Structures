@@ -1,1 +1,727 @@
+Exercise 1: Inventory Management System
+ 
+➤ Product.java
+// Product.java
+public class Product {
+    private String productId;
+    private String productName;
+    private int quantity;
+    private double price;
+    public Product(String productId, String productName, int quantity, double price) {
+        this.productId = productId;
+        this.productName = productName;
+        this.quantity = quantity;
+        this.price = price;
+    }
+    // Getters and Setters
+    public String getProductId() {
+        return productId;
+    }
+    public String getProductName() {
+        return productName;
+    }
+    public int getQuantity() {
+        return quantity;
+    }
+    public double getPrice() {
+        return price;
+    }
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+    public void setPrice(double price) {
+        this.price = price;
+    }
+    public void display() {
+        System.out.println(productId + " | " + productName + " | Qty: " + quantity + " | ₹" + price);
+    }
+}
+➤ InventoryManager.java
+// InventoryManager.java
+import java.util.HashMap;
+public class InventoryManager {
+    private final HashMap<String, Product> inventory;
+
+    public InventoryManager() {
+        inventory = new HashMap<>();
+    }
+    public void addProduct(Product product) {
+        if (inventory.containsKey(product.getProductId())) {
+            System.out.println("Product already exists.");
+        } else {
+            inventory.put(product.getProductId(), product);
+            System.out.println("Product added.");
+        }
+    }
+    public void updateProduct(String productId, int quantity, double price) {
+        Product product = inventory.get(productId);
+        if (product != null) {
+            product.setQuantity(quantity);
+            product.setPrice(price);
+            System.out.println("Product updated.");
+        } else {
+            System.out.println("Product not found.");
+        }
+    }
+    public void deleteProduct(String productId) {
+        if (inventory.remove(productId) != null) {
+            System.out.println("Product removed.");
+        } else {
+            System.out.println("Product not found.");
+        }
+    }
+    public void displayAll() {
+        System.out.println("\nInventory:");
+        for (Product product : inventory.values()) {
+            product.display();
+        }
+    }
+}
+➤ Main.java
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        InventoryManager manager = new InventoryManager();
+        Product p1 = new Product("P101", "Keyboard", 25, 799.0);
+        Product p2 = new Product("P102", "Mouse", 40, 399.0);
+        Product p3 = new Product("P103", "Monitor", 10, 6499.0);
+        manager.addProduct(p1);
+        manager.addProduct(p2);
+        manager.addProduct(p3);
+        manager.displayAll();
+
+        manager.updateProduct("P103", 12, 6299.0);
+        manager.deleteProduct("P102");
+        manager.displayAll();
+    }
+}
+Output
+ 
+
+
+Analysis
+Operation	HashMap Complexity (Avg)	Comment
+Add	O(1)	Insert using put()
+Update	O(1)	Lookup + modify
+Delete	O(1)	Delete using remove()
+Display All	O(n)	Linear traversal
+Optimizations:
+•	Use HashMap for fast lookups by ID.
+•	Use a TreeMap instead if sorted keys are needed.
+•	For advanced features, combine with a database later.
+Exercise 2: E-commerce Platform Search Function
+Why Search Optimization is Critical:
+In an e-commerce platform, the search functionality plays a crucial role in helping users quickly find products. With a growing product catalog, efficient search algorithms and data structures are essential to ensure speed and scalability.
+Asymptotic Notation & Search Analysis
+➤ Big O Notation:
+•	Used to analyze how algorithm performance scales with input size n.
+•	Focuses on worst-case (and often average-case) scenarios.
+Search Method	Best Case	Average Case	Worst Case	Sorted Required?
+Linear Search	O(1)	O(n)	O(n)	No
+Binary Search	O(1)	O(log n)	O(log n)	Yes
+
+➤ Product.java
+// Product.java
+public class Product implements Comparable<Product> {
+    String productId;
+    String productName;
+    String category;
+    public Product(String id, String name, String category) {
+        this.productId = id;
+        this.productName = name;
+        this.category = category;
+    }
+    @Override
+    public String toString() {
+        return productId + " | " + productName + " | " + category;
+    }
+    // Sorting based on productName
+    @Override
+    public int compareTo(Product other) {
+        return this.productName.compareToIgnoreCase(other.productName);
+    }
+}
+Implementation
+➤ SearchAlgorithms.java
+// SearchAlgorithms.java
+public class SearchAlgorithms {
+    // Linear Search by Product Name
+    public static int linearSearch(Product[] products, String name) {
+        for (int i = 0; i < products.length; i++) {
+            if (products[i].productName.equalsIgnoreCase(name)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    // Binary Search (array must be sorted)
+    public static int binarySearch(Product[] products, String name) {
+        int low = 0, high = products.length - 1;
+        while (low <= high) {
+            int mid = (low + high) / 2;
+            int result = products[mid].productName.compareToIgnoreCase(name);
+            if (result == 0) return mid;
+            else if (result < 0) low = mid + 1;
+            else high = mid - 1;
+        }
+        return -1;
+    }
+}
+Main Test Class
+➤ Main.java
+import java.util.Arrays;
+public class Main {
+    public static void main(String[] args) {
+        Product[] products = {
+            new Product("P001", "Laptop", "Electronics"),
+            new Product("P002", "Shoes", "Footwear"),
+            new Product("P003", "Headphones", "Electronics"),
+            new Product("P004", "T-Shirt", "Clothing"),
+            new Product("P005", "Watch", "Accessories")
+        };
+        String target = "Watch";
+        // --- Linear Search ---
+        int linearIndex = SearchAlgorithms.linearSearch(products, target);
+        System.out.println("🔍 Linear Search Result:");
+        if (linearIndex != -1)
+            System.out.println(products[linearIndex]);
+        else
+            System.out.println("Product not found.");
+        // --- Sort before Binary Search ---
+        Arrays.sort(products);  // Sort based on productName
+        // --- Binary Search ---
+        int binaryIndex = SearchAlgorithms.binarySearch(products, target);
+        System.out.println("\n⚡ Binary Search Result:");
+        if (binaryIndex != -1)
+            System.out.println(products[binaryIndex]);
+        else
+            System.out.println("Product not found.");
+    }
+}
+Output
+ 
+
+
+
+Time Complexity Comparison
+Operation	Linear Search	Binary Search
+Time Complexity	O(n)	O(log n)
+Sorted Needed?	No	Yes
+Ease of Use	Simple	Needs sorting
+
+Recommendation for E-Commerce Platform
+Platform Size	Suggested Search Method	Reason
+Small product list	Linear Search	Simple to implement
+Large product list	Binary Search (with sorting)	Fast search, scalable performance
+Real-world system	Indexed DB or Trie-based search	For text-based search and speed
+
+Exercise 3: Sorting Customer Orders
+Common Sorting Algorithms
+Algorithm	Best Case	Average Case	Worst Case	Stable?	Extra Space
+Bubble Sort	O(n)	O(n²)	O(n²)	✅ Yes	❌ In-place
+Insertion Sort	O(n)	O(n²)	O(n²)	✅ Yes	❌ In-place
+Quick Sort	O(n log n)	O(n log n)	O(n²)	❌ No	❌ In-place
+Merge Sort	O(n log n)	O(n log n)	O(n log n)	✅ Yes	✅ Needs extra space
+Quick Sort is generally preferred due to its fast average performance and low memory usage.
+ 
+Define Order Class
+// Order.java
+public class Order {
+    String orderId;
+    String customerName;
+    double totalPrice;
+    public Order(String orderId, String customerName, double totalPrice) {
+        this.orderId = orderId;
+        this.customerName = customerName;
+        this.totalPrice = totalPrice;
+    }
+    public void display() {
+        System.out.println(orderId + " | " + customerName + " | ₹" + totalPrice);
+    }
+}
+Implementation of Sorting
+➤ Bubble Sort by totalPrice
+public class SortAlgorithms {
+    public static void bubbleSort(Order[] orders) {
+        int n = orders.length;
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (orders[j].totalPrice > orders[j + 1].totalPrice) {
+                    // Swap
+                    Order temp = orders[j];
+                    orders[j] = orders[j + 1];
+                    orders[j + 1] = temp;
+                }
+            }
+        }
+    }
+➤ Quick Sort by totalPrice
+    public static void quickSort(Order[] orders, int low, int high) {
+        if (low < high) {
+            int pivotIndex = partition(orders, low, high);
+            quickSort(orders, low, pivotIndex - 1);
+            quickSort(orders, pivotIndex + 1, high);
+        }
+    }
+    private static int partition(Order[] orders, int low, int high) {
+        double pivot = orders[high].totalPrice;
+        int i = low - 1;
+        for (int j = low; j < high; j++) {
+            if (orders[j].totalPrice <= pivot) {
+                i++;
+                // Swap
+                Order temp = orders[i];
+                orders[i] = orders[j];
+                orders[j] = temp;
+            }
+        }
+        // Swap with pivot
+        Order temp = orders[i + 1];
+        orders[i + 1] = orders[high];
+        orders[high] = temp;
+        return i + 1;
+    }
+}Test Class
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        Order[] orders = {
+            new Order("O101", "Lochana", 899.0),
+            new Order("O102", "Rahul", 4999.0),
+            new Order("O103", "Aisha", 2499.0),
+            new Order("O104", "Meera", 1399.0)
+        };
+        System.out.println("🔹 Original Orders:");
+        for (Order o : orders) o.display();
+        // Bubble Sort
+        SortAlgorithms.bubbleSort(orders);
+        System.out.println("\n🔹After Bubble Sort:");
+        for (Order o : orders) o.display();
+        // Re-initialize for Quick Sort
+        Order[] orders2 = {
+            new Order("O101", "Lochana", 899.0),
+            new Order("O102", "Rahul", 4999.0),
+            new Order("O103", "Aisha", 2499.0),
+            new Order("O104", "Meera", 1399.0)
+        };
+        SortAlgorithms.quickSort(orders2, 0, orders2.length - 1);
+        System.out.println("\n🔹 After Quick Sort:");
+        for (Order o : orders2) o.display();
+    }
+}
+Output
+ 
+Performance Comparison
+Metric	Bubble Sort	Quick Sort
+Best Case Time	O(n)	O(n log n)
+Average Time	O(n²)	O(n log n)
+Worst Case Time	O(n²)	O(n²)
+Space Complexity	O(1)	O(log n)
+Real-world usage	 Rare	Very Common
+Why Quick Sort is Preferred:
+•	Much faster on average than bubble sort.
+•	Used in many standard libraries (like Java's Arrays.sort() for primitives).
+•	In-place, so no extra memory is needed.
+Conclusion
+•	For sorting customer orders by price, Quick Sort is preferred due to better performance.
+•	Bubble Sort is educational but inefficient for large-scale use.
+•	Efficient sorting allows faster processing and prioritization of high-value orders.
+Exercise 4: Employee Management System
+How Arrays Are Represented in Memory:
+•	Arrays are contiguous blocks of memory.
+•	Each element is stored at a fixed offset from the base address.
+•	Accessing elements is done using indexing (e.g., arr[i]), which is O(1).
+Advantages of Arrays:
+•	Fast access using index (random access).
+•	Memory locality improves performance (cache-friendly).
+•	Simple structure, easy to implement.
+ 
+Define Employee Class
+// Employee.java
+public class Employee {
+    String employeeId;
+    String name;
+    String position;
+    double salary;
+    public Employee(String employeeId, String name, String position, double salary) {
+        this.employeeId = employeeId;
+        this.name = name;
+        this.position = position;
+        this.salary = salary;
+    }
+    public void display() {
+        System.out.println(employeeId + " | " + name + " | " + position + " | ₹" + salary);
+    }
+}
+Implementation of Array-based Employee Manager
+// EmployeeManager.java
+public class EmployeeManager {
+    private Employee[] employees;
+    private int count;
+    public EmployeeManager(int capacity) {
+        employees = new Employee[capacity];
+        count = 0;
+    }
+    public void addEmployee(Employee emp) {
+        if (count < employees.length) {
+            employees[count++] = emp;
+            System.out.println("✅ Employee added.");
+        } else {
+            System.out.println("❌ Employee array is full.");
+        }
+    }
+    public void displayAll() {
+        System.out.println("\n📋 Employee List:");
+        for (int i = 0; i < count; i++) {
+            employees[i].display();
+        }
+    }
+    public Employee searchEmployee(String empId) {
+        for (int i = 0; i < count; i++) {
+            if (employees[i].employeeId.equalsIgnoreCase(empId)) {
+                return employees[i];
+            }
+        }
+        return null;
+    }
+    public void deleteEmployee(String empId) {
+        for (int i = 0; i < count; i++) {
+            if (employees[i].employeeId.equalsIgnoreCase(empId)) {
+                // Shift elements to left
+                for (int j = i; j < count - 1; j++) {
+                    employees[j] = employees[j + 1];
+                }
+                employees[--count] = null; // Clear last element
+                System.out.println("🗑️ Employee deleted.");
+                return;
+            }
+        }
+        System.out.println("❌ Employee not found.");
+    }
+}
+Main Class to Test
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        EmployeeManager manager = new EmployeeManager(5);
+        manager.addEmployee(new Employee("E101", "Lochana", "Engineer", 45000));
+        manager.addEmployee(new Employee("E102", "Rahul", "Manager", 65000));
+        manager.addEmployee(new Employee("E103", "Meera", "HR", 40000));
+        manager.displayAll();
+        System.out.println("\n🔍 Searching for E102:");
+        Employee emp = manager.searchEmployee("E102");
+        if (emp != null) emp.display();
+        else System.out.println("Not found.");
+        System.out.println("\n🗑️ Deleting E102:");
+        manager.deleteEmployee("E102");
+        manager.displayAll();
+    }
+}
+Sample Output:
+ 
+
+
+
+
+Time Complexity Analysis
+Operation	Time Complexity	Explanation
+Add	O(1)	Insert at the end (if space available)
+Search	O(n)	Linear search by employee ID
+Traverse	O(n)	Display all employees
+Delete	O(n)	Search + shift elements to left after deletion
+
+Limitations of Arrays
+Limitation	Explanation
+Fixed Size	Cannot grow dynamically, risk of overflow
+Insertion/Deletion Overhead	Need to shift elements → time-consuming for large data
+No Key-based Lookup	Can't search instantly like HashMap
+
+When to Use Arrays
+•	When the number of employees is fixed or small
+•	When random access (by index) is needed
+•	For simple structures and performance-critical systems
+
+Exercise 5: Task Management System
+Types of Linked Lists:
+Type	Structure	Features
+Singly Linked List	Nodes connected in one direction	Each node points to the next node only
+Doubly Linked List	Nodes connected in both directions	Each node points to both next and previous nodes
+ Advantages of Linked Lists over Arrays:
+•	Dynamic size (no need to predefine capacity)
+•	Efficient insertion/deletion at beginning/middle (no shifting required)
+•	Better suited for frequent modifications
+ 
+Setup – Define Task Class
+// Task.java
+public class Task {
+    String taskId;
+    String taskName;
+    String status;
+    public Task(String taskId, String taskName, String status) {
+        this.taskId = taskId;
+        this.taskName = taskName;
+        this.status = status;
+    }
+    public void display() {
+        System.out.println(taskId + " | " + taskName + " | " + status);
+    }
+}
+Implementation of Singly Linked List
+// Node.java
+class Node {
+    Task task;
+    Node next;
+    public Node(Task task) {
+        this.task = task;
+        this.next = null;
+    }
+}
+➤ TaskManager.java
+java
+CopyEdit
+// TaskManager.java
+public class TaskManager {
+    private Node head;
+    // Add task at end
+    public void addTask(Task task) {
+        Node newNode = new Node(task);
+        if (head == null) {
+            head = newNode;
+        } else {
+            Node curr = head;
+            while (curr.next != null) {
+                curr = curr.next;
+            }
+            curr.next = newNode;
+        }
+        System.out.println("✅ Task added.");
+    }
+    // Traverse all tasks
+    public void displayTasks() {
+        System.out.println("\n📋 Task List:");
+        Node curr = head;
+        while (curr != null) {
+            curr.task.display();
+            curr = curr.next;
+        }
+    }
+    // Search task by ID
+    public Task searchTask(String taskId) {
+        Node curr = head;
+        while (curr != null) {
+            if (curr.task.taskId.equalsIgnoreCase(taskId)) {
+                return curr.task;
+            }
+            curr = curr.next;
+        }
+        return null;
+    }
+    // Delete task by ID
+    public void deleteTask(String taskId) {
+        if (head == null) {
+            System.out.println("❌ No tasks to delete.");
+            return;
+        }
+        if (head.task.taskId.equalsIgnoreCase(taskId)) {
+            head = head.next;
+            System.out.println("🗑️ Task deleted.");
+            return;
+        }
+        Node prev = head;
+        Node curr = head.next;
+        while (curr != null) {
+            if (curr.task.taskId.equalsIgnoreCase(taskId)) {
+                prev.next = curr.next;
+                System.out.println("🗑️ Task deleted.");
+                return;
+            }
+            prev = curr;
+            curr = curr.next;
+        }
+        System.out.println("❌ Task not found.");
+    }
+}
+Main Test Class
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        TaskManager manager = new TaskManager();
+        manager.addTask(new Task("T101", "Create UI", "Pending"));
+        manager.addTask(new Task("T102", "Setup Database", "In Progress"));
+        manager.addTask(new Task("T103", "Write API", "Completed"));
+        manager.displayTasks();
+        System.out.println("\n🔍 Searching for T102:");
+        Task t = manager.searchTask("T102");
+        if (t != null) t.display();
+        else System.out.println("Task not found.");
+        System.out.println("\n🗑️ Deleting T102:");
+        manager.deleteTask("T102");
+        manager.displayTasks();
+    }
+}
+Output
+ 
+Time Complexity Analysis
+Operation	Time Complexity	Explanation
+Add	O(n)	Traverse to the end of the list
+Search	O(n)	Must check each node
+Traverse	O(n)	Visit each node
+Delete	O(n)	Need to find and update pointers
+Advantages of Linked List over Arrays
+Feature	Array	Singly Linked List
+Size	Fixed	Dynamic
+Insert/Delete (middle)	O(n) (need to shift elements)	O(1) with pointer adjustment
+Memory Allocation	Contiguous	Non-contiguous (flexible)
+Random Access	✅ Fast (O(1))	❌ Slow (O(n))
+
+
+Conclusion
+•	Singly Linked List is ideal for dynamic task lists where tasks may be added or removed frequently.
+•	Though accessing specific tasks is slower, the list provides efficient insertions/deletions.
+•	Suitable for task managers, schedulers, and systems that evolve in real-time.
+
+Exercise 6: Library Management System
+Linear Search
+•	Definition: Traverses the list one by one until the desired element is found.
+•	Best Case: O(1) – if the element is the first
+•	Average/Worst Case: O(n) – must check all elements
+•	Use Case: Suitable for unsorted or small datasets.
+Binary Search
+•	Definition: Searches a sorted list by repeatedly dividing the range in half.
+•	Best Case: O(1) – if the element is at the middle
+•	Average/Worst Case: O(log n)
+•	Use Case: Best for large, sorted datasets.
+ 
+Define the Book Class
+// Book.java
+public class Book {
+    String bookId;
+    String title;
+    String author;
+    public Book(String bookId, String title, String author) {
+        this.bookId = bookId;
+        this.title = title;
+        this.author = author;
+    }
+    public void display() {
+        System.out.println(bookId + " | " + title + " | " + author);
+    }
+}
+Implementation
+➤ Linear Search by Title
+// SearchUtil.java
+public class SearchUtil {
+    public static int linearSearch(Book[] books, String title) {
+        for (int i = 0; i < books.length; i++) {
+            if (books[i].title.equalsIgnoreCase(title)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+➤ Binary Search by Title (Assumes Sorted by Title)
+    public static int binarySearch(Book[] books, String title) {
+        int low = 0, high = books.length - 1;
+        while (low <= high) {
+            int mid = (low + high) / 2;
+            int compare = books[mid].title.compareToIgnoreCase(title);
+            if (compare == 0) return mid;
+            else if (compare < 0) low = mid + 1;
+            else high = mid - 1;
+        }
+        return -1;
+    }
+}
+Testing the Search
+// Main.java
+import java.util.Arrays;
+public class Main {
+    public static void main(String[] args) {
+        Book[] books = {
+            new Book("B001", "Data Structures", "Narasimha Karumanchi"),
+            new Book("B002", "Java Programming", "Herbert Schildt"),
+            new Book("B003", "Operating Systems", "Silberschatz"),
+            new Book("B004", "Algorithms", "CLRS")
+        };
+        System.out.println("Linear Search for 'Java Programming':");
+        int index1 = SearchUtil.linearSearch(books, "Java Programming");
+        if (index1 != -1) books[index1].display();
+        else System.out.println("Book not found!");
+        // Sort by title for binary search
+        Arrays.sort(books, (a, b) -> a.title.compareToIgnoreCase(b.title));
+        System.out.println("\nBinary Search for 'Java Programming':");
+        int index2 = SearchUtil.binarySearch(books, "Java Programming");
+        if (index2 != -1) books[index2].display();
+        else System.out.println("Book not found!");
+    }
+}
+Output
+ 
+Time Complexity Comparison
+Search Method	Best Case	Average Case	Worst Case	Sorted Required?
+Linear Search	O(1)	O(n)	O(n)	No
+Binary Search	O(1)	O(log n)	O(log n)	Yes
+
+When to Use Which?
+Situation	Best Search Method
+Small or unsorted dataset	 Linear Search
+Large and pre-sorted dataset	 Binary Search
+Frequent additions/deletions	Linear (avoids constant sorting)
+Static large dataset (rare changes)	Binary (very efficient)
+
+Conclusion
+•	Linear Search is easy to implement and useful for unsorted or small datasets.
+•	Binary Search is much faster for large datasets, but it requires sorting.
+•	Choosing the right algorithm helps optimize performance based on the system's needs.
+
+
+
+Exercise 7: Financial Forecasting
+➤ Recursive Forecasting Function
+public class Forecast {
+    public static double predictFutureValue(double currentValue, double rate, int years) {
+        if (years == 0) {
+            return currentValue;
+        }
+        return predictFutureValue(currentValue * (1 + rate), rate, years - 1);
+    }
+}
+➤ Main Class to Test
+public class Main {
+    public static void main(String[] args) {
+        double currentValue = 10000;  // ₹10,000
+        double rate = 0.05;           // 5% annual growth
+        int years = 4;
+        double futureValue = Forecast.predictFutureValue(currentValue, rate, years);
+        System.out.println("📈 Future Value after " + years + " years = ₹" + futureValue);
+    }
+}
+✅ Sample Output:
+ 
+
+
+
+
+Time Complexity
+Aspect	Value
+Time Complexity	O(n) – 1 recursive call per year
+Space Complexity	O(n) – stack frames for each call
+How to Optimize
+Use Iterative Approach (Recommended for Larger Inputs)
+public static double predictFutureValueIterative(double currentValue, double rate, int years) {
+    for (int i = 0; i < years; i++) {
+        currentValue *= (1 + rate);
+    }
+    return currentValue;
+}
+Benefits of Iteration:
+•	No recursion depth limit
+•	Space complexity becomes O(1)
+•	Prevents stack overflow
+Conclusion
+Method	Pros	Cons
+Recursion	Simple, clean, easy to understand	Stack-heavy, slower for large n
+Iteration	Efficient, avoids stack overhead	Slightly more verbose
+✅ Use recursion for elegant small-scale forecasting. Use iteration for larger financial projections.
+
 
