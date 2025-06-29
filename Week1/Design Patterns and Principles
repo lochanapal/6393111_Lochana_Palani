@@ -1,0 +1,726 @@
+Exercise 1: Implementing the Singleton Pattern
+ 
+ 
+  
+
+Exercise 2: Implementing the Factory Method Pattern
+ 
+Define Document Interface
+public interface Document {
+    void open();
+}
+Create Concrete Document Classes
+// WordDocument.java
+public class WordDocument implements Document {
+    @Override
+    public void open() {
+        System.out.println("Opening a Word document.");
+    }
+}
+
+// PdfDocument.java
+public class PdfDocument implements Document {
+    @Override
+    public void open() {
+        System.out.println("Opening a PDF document.");
+    }
+}
+
+// ExcelDocument.java
+public class ExcelDocument implements Document {
+    @Override
+    public void open() {
+        System.out.println("Opening an Excel document.");
+    }
+}
+Implement the Factory Method ➤ Abstract Factory Class
+// DocumentFactory.java
+public abstract class DocumentFactory {
+    public abstract Document createDocument();
+}
+➤ Concrete Factory Classes
+// WordDocumentFactory.java
+public class WordDocumentFactory extends DocumentFactory {
+    @Override
+    public Document createDocument() {
+        return new WordDocument();
+    }
+}
+
+// PdfDocumentFactory.java
+public class PdfDocumentFactory extends DocumentFactory {
+    @Override
+    public Document createDocument() {
+        return new PdfDocument();
+    }
+}
+
+// ExcelDocumentFactory.java
+public class ExcelDocumentFactory extends DocumentFactory {
+    @Override
+    public Document createDocument() {
+        return new ExcelDocument();
+    }
+}
+Test the Factory Method Implementation
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        DocumentFactory wordFactory = new WordDocumentFactory();
+        Document wordDoc = wordFactory.createDocument();
+        wordDoc.open();
+        DocumentFactory pdfFactory = new PdfDocumentFactory();
+        Document pdfDoc = pdfFactory.createDocument();
+        pdfDoc.open();
+        DocumentFactory excelFactory = new ExcelDocumentFactory();
+        Document excelDoc = excelFactory.createDocument();
+        excelDoc.open();
+    }
+}
+Output
+ 
+Exercise 3: Implementing the Builder Pattern
+ 
+Computer.java
+package computer;
+public class Computer {
+    // Required components
+    private final String cpu;
+    private final String ram;
+    // Optional components
+    private final String storage;
+    private final String gpu;
+    private final String operatingSystem;
+    // Step 4: Private constructor that accepts Builder
+    private Computer(Builder builder) {
+        this.cpu = builder.cpu;
+        this.ram = builder.ram;
+        this.storage = builder.storage;
+        this.gpu = builder.gpu;
+        this.operatingSystem = builder.operatingSystem;
+    }
+    // Step 3: Static nested Builder class
+    public static class Builder {
+        private final String cpu;
+        private final String ram;
+        private String storage;
+        private String gpu;
+        private String operatingSystem;
+
+        public Builder(String cpu, String ram) {
+            this.cpu = cpu;
+            this.ram = ram;
+        }
+        public Builder setStorage(String storage) {
+            this.storage = storage;
+            return this;
+        }
+        public Builder setGpu(String gpu) {
+            this.gpu = gpu;
+            return this;
+        }
+        public Builder setOperatingSystem(String operatingSystem) {
+            this.operatingSystem = operatingSystem;
+            return this;
+        }
+        // Step 3: build() method returns the final object
+        public Computer build() {
+            return new Computer(this);
+        }
+    }
+    // Display method
+    public void showSpecs() {
+        System.out.println("CPU: " + cpu);
+        System.out.println("RAM: " + ram);
+        System.out.println("Storage: " + storage);
+        System.out.println("GPU: " + gpu);
+        System.out.println("OS: " + operatingSystem);
+        System.out.println("-----------------------------");
+    }
+}
+Main.java
+ 
+Output
+ 
+Exercise 4: Implementing the Adapter Pattern
+ 
+Define the Target Interface
+// PaymentProcessor.java
+public interface PaymentProcessor {
+    void processPayment(double amount);
+}
+Implement Adaptee Classes (3rd-party APIs)
+➤ PayPal Gateway
+// PayPalGateway.java
+public class PayPalGateway {
+    public void makePayment(String userEmail, double amount) {
+        System.out.println("Paid ₹" + amount + " via PayPal (Email: " + userEmail + ")");
+    }
+}
+➤ Stripe Gateway
+// StripeGateway.java
+public class StripeGateway {
+    public void pay(double amountInDollars) {
+        System.out.println("Paid $" + amountInDollars + " via Stripe.");
+    }
+}
+Implement Adapter Classes
+➤ PayPal Adapter
+// PayPalAdapter.java
+public class PayPalAdapter implements PaymentProcessor {
+    private PayPalGateway paypal;
+    private String email;
+    public PayPalAdapter(String email) {
+        this.paypal = new PayPalGateway();
+        this.email = email;
+    }
+
+    @Override
+    public void processPayment(double amount) {
+        paypal.makePayment(email, amount);
+    }
+}
+➤ Stripe Adapter
+// StripeAdapter.java
+public class StripeAdapter implements PaymentProcessor {
+    private StripeGateway stripe;
+    public StripeAdapter() {
+        this.stripe = new StripeGateway();
+    }
+    @Override
+    public void processPayment(double amount) {
+        stripe.pay(amount / 83); // Assuming conversion ₹ to $ for demo
+    }
+}
+Test the Adapter Implementation
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        PaymentProcessor paypalProcessor = new PayPalAdapter("user@example.com");
+        PaymentProcessor stripeProcessor = new StripeAdapter();
+
+        System.out.println("Processing payments using unified interface:");
+
+        paypalProcessor.processPayment(5000);
+        stripeProcessor.processPayment(5000);
+    }
+}
+Output
+ 
+Exercise 5: Implementing the Decorator Pattern
+ 
+Define Component Interface
+// Notifier.java
+public interface Notifier {
+    void send(String message);
+}
+Implement Concrete Component
+// EmailNotifier.java
+public class EmailNotifier implements Notifier {
+    @Override
+    public void send(String message) {
+        System.out.println("Email: " + message);
+    }
+}
+Implement Decorator Classes
+➤ Abstract Decorator
+// NotifierDecorator.java
+public abstract class NotifierDecorator implements Notifier {
+    protected Notifier notifier;
+    public NotifierDecorator(Notifier notifier) {
+        this.notifier = notifier;
+    }
+    @Override
+    public void send(String message) {
+        notifier.send(message); // Delegate
+    }
+}
+➤ SMS Decorator
+// SMSNotifierDecorator.java
+public class SMSNotifierDecorator extends NotifierDecorator {
+    public SMSNotifierDecorator(Notifier notifier) {
+        super(notifier);
+    }
+    @Override
+    public void send(String message) {
+        super.send(message);
+        sendSMS(message);
+    }
+    private void sendSMS(String message) {
+        System.out.println("SMS: " + message);
+    }
+}
+➤ Slack Decorator
+// SlackNotifierDecorator.java
+public class SlackNotifierDecorator extends NotifierDecorator {
+    public SlackNotifierDecorator(Notifier notifier) {
+        super(notifier);
+    }
+    @Override
+    public void send(String message) {
+        super.send(message);
+        sendSlack(message);
+    }
+    private void sendSlack(String message) {
+        System.out.println("Slack: " + message);
+    }
+}
+Test the Decorator Implementation
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        // Base notifier (Email)
+        Notifier emailNotifier = new EmailNotifier();
+        // Decorated with SMS
+        Notifier smsEmailNotifier = new SMSNotifierDecorator(emailNotifier);
+        // Decorated with SMS + Slack
+        Notifier fullNotifier = new SlackNotifierDecorator(smsEmailNotifier);
+        System.out.println("Sending Notification:");
+        fullNotifier.send("System Alert: Low disk space.");
+    }
+}
+✅ Output
+ 
+
+Exercise 6: Implementing the Proxy Pattern
+ 
+Define Subject Interface
+// Image.java
+public interface Image {
+    void display();
+}
+Real Subject Class
+// RealImage.java
+public class RealImage implements Image {
+    private final String filename;
+    public RealImage(String filename) {
+        this.filename = filename;
+        loadFromRemoteServer();
+    }
+    private void loadFromRemoteServer() {
+        System.out.println("Loading image from remote server: " + filename);
+    }
+    @Override
+    public void display() {
+        System.out.println("Displaying image: " + filename);
+    }
+}
+Proxy Class
+// ProxyImage.java
+public class ProxyImage implements Image {
+    private final String filename;
+    private RealImage realImage;
+    public ProxyImage(String filename) {
+        this.filename = filename;
+    }
+    @Override
+    public void display() {
+        if (realImage == null) {
+            realImage = new RealImage(filename);  // Lazy initialization
+        } else {
+            System.out.println("Using cached image: " + filename);
+        }
+        realImage.display();
+    }
+}
+Test Class
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        Image image1 = new ProxyImage("cat.jpg");
+        System.out.println("First call:");
+        image1.display(); // Loads and displays
+        System.out.println("\nSecond call:");
+        image1.display(); // Uses cached image
+    }
+}
+Output
+ 
+Exercise 7: Implementing the Observer Pattern
+ 
+Define Subject Interface
+// Stock.java
+public interface Stock {
+    void registerObserver(Observer o);
+    void removeObserver(Observer o);
+    void notifyObservers();
+}
+Concrete Subject
+// StockMarket.java
+import java.util.ArrayList;
+import java.util.List;
+public class StockMarket implements Stock {
+    private final List<Observer> observers = new ArrayList<>();
+    private double price;
+    public void setPrice(double price) {
+        this.price = price;
+        notifyObservers();
+    }
+    public double getPrice() {
+        return price;
+    }
+    @Override
+    public void registerObserver(Observer o) {
+        observers.add(o);
+    }
+    @Override
+    public void removeObserver(Observer o) {
+        observers.remove(o);
+    }
+    @Override
+    public void notifyObservers() {
+        for (Observer o : observers) {
+            o.update(price);
+        }
+    }
+}
+Define Observer Interface
+// Observer.java
+public interface Observer {
+    void update(double newPrice);
+}
+Concrete Observers
+➤ Mobile App
+// MobileApp.java
+public class MobileApp implements Observer {
+    private final String user;
+    public MobileApp(String user) {
+        this.user = user;
+    }
+    @Override
+    public void update(double newPrice) {
+        System.out.println("MobileApp (" + user + "): Stock price updated to ₹" + newPrice);
+    }
+}
+➤ Web App
+// WebApp.java
+public class WebApp implements Observer {
+    private final String user;
+    public WebApp(String user) {
+        this.user = user;
+    }
+    @Override
+    public void update(double newPrice) {
+        System.out.println("WebApp (" + user + "): Stock price updated to ₹" + newPrice);
+    }
+}
+Test Class
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        StockMarket stockMarket = new StockMarket();
+        Observer user1 = new MobileApp("Lochana");
+        Observer user2 = new WebApp("Investor123");
+        stockMarket.registerObserver(user1);
+        stockMarket.registerObserver(user2);
+        System.out.println("Setting stock price to ₹350.50");
+        stockMarket.setPrice(350.50);
+        System.out.println("\nRemoving WebApp observer and updating price...");
+        stockMarket.removeObserver(user2);
+        stockMarket.setPrice(375.00);
+    }
+}
+Output
+ 
+Exercise 8: Implementing the Strategy Pattern
+ 
+Define Strategy Interface
+// PaymentStrategy.java
+public interface PaymentStrategy {
+    void pay(double amount);
+}
+Implement Concrete Strategies
+➤ Credit Card Payment
+// CreditCardPayment.java
+public class CreditCardPayment implements PaymentStrategy {
+    private final String cardNumber;
+    private final String cardHolder;
+    public CreditCardPayment(String cardNumber, String cardHolder) {
+        this.cardNumber = cardNumber;
+        this.cardHolder = cardHolder;
+    }
+    @Override
+    public void pay(double amount) {
+        System.out.println("Paid ₹" + amount + " using Credit Card (Holder: " + cardHolder + ")");
+    }
+}
+➤ PayPal Payment
+// PayPalPayment.java
+public class PayPalPayment implements PaymentStrategy {
+    private final String email;
+    public PayPalPayment(String email) {
+        this.email = email;
+    }
+    @Override
+    public void pay(double amount) {
+        System.out.println("Paid ₹" + amount + " using PayPal (Email: " + email + ")");
+    }
+}
+Implement Context Class
+// PaymentContext.java
+public class PaymentContext {
+    private PaymentStrategy strategy;
+    // Allow strategy to be set dynamically
+    public void setPaymentStrategy(PaymentStrategy strategy) {
+        this.strategy = strategy;
+    }
+    // Execute current strategy
+    public void payAmount(double amount) {
+        if (strategy == null) {
+            System.out.println("Payment method not selected.");
+        } else {
+            strategy.pay(amount);
+        }
+    }
+}
+Test Class
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        PaymentContext context = new PaymentContext();
+        // Use Credit Card
+        context.setPaymentStrategy(new CreditCardPayment("1234-5678-9012-3456", "Lochana"));
+        context.payAmount(2500.00);
+        // Switch to PayPal
+        context.setPaymentStrategy(new PayPalPayment("lochy@example.com"));
+        context.payAmount(1500.00);
+    }
+}
+OUTPUT
+ 
+Exercise 9: Implementing the Command Pattern
+ 
+Define Command Interface
+// Command.java
+public interface Command {
+    void execute();
+}
+Implement Concrete Commands
+➤ LightOnCommand
+// LightOnCommand.java
+public class LightOnCommand implements Command {
+    private final Light light;
+
+    public LightOnCommand(Light light) {
+        this.light = light;
+    }
+    @Override
+    public void execute() {
+        light.turnOn();
+    }
+}
+➤ LightOffCommand
+// LightOffCommand.java
+public class LightOffCommand implements Command {
+    private final Light light;
+    public LightOffCommand(Light light) {
+        this.light = light;
+    }
+    @Override
+    public void execute() {
+        light.turnOff();
+    }
+}Implement Invoker Class
+// RemoteControl.java
+public class RemoteControl {
+    private Command command;
+    public void setCommand(Command command) {
+        this.command = command;
+    }
+    public void pressButton() {
+        if (command != null) {
+            command.execute();
+        } else {
+            System.out.println("No command set.");
+        }
+    }
+}
+Implement Receiver Class
+// Light.java
+public class Light {
+    private final String location;
+    public Light(String location) {
+        this.location = location;
+    }
+    public void turnOn() {
+        System.out.println(location + " Light is ON");
+    }
+    public void turnOff() {
+        System.out.println(location + " Light is OFF");
+    }
+}
+Test Class
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        Light livingRoomLight = new Light("Living Room");
+        Command lightOn = new LightOnCommand(livingRoomLight);
+        Command lightOff = new LightOffCommand(livingRoomLight);
+        RemoteControl remote = new RemoteControl();
+        System.out.println("Turning ON the light:");
+        remote.setCommand(lightOn);
+        remote.pressButton();
+        System.out.println("Turning OFF the light:");
+        remote.setCommand(lightOff);
+        remote.pressButton();
+    }
+}
+Output
+ 
+Exercise 10: Implementing the MVC Pattern
+ 
+Model Class – Student.java
+// Student.java
+public class Student {
+    private String name;
+    private String id;
+    private String grade;
+    public Student(String name, String id, String grade) {
+        this.name = name;
+        this.id = id;
+        this.grade = grade;
+    }
+    // Getters and Setters
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+    public String getGrade() {
+        return grade;
+    }
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
+}
+View Class – StudentView.java
+// StudentView.java
+public class StudentView {
+    public void displayStudentDetails(String name, String id, String grade) {
+        System.out.println("---- Student Details ----");
+        System.out.println("Name  : " + name);
+        System.out.println("ID    : " + id);
+        System.out.println("Grade : " + grade);
+        System.out.println("-------------------------");
+    }
+}
+Controller Class – StudentController.java
+// StudentController.java
+public class StudentController {
+    private final Student model;
+    private final StudentView view;
+    public StudentController(Student model, StudentView view) {
+        this.model = model;
+        this.view = view;
+    }
+    // Controller Methods
+    public void setStudentName(String name) {
+        model.setName(name);
+    }
+    public void setStudentGrade(String grade) {
+        model.setGrade(grade);
+    }
+    public String getStudentName() {
+        return model.getName();
+    }
+    public String getStudentGrade() {
+        return model.getGrade();
+    }
+    public void updateView() {
+        view.displayStudentDetails(model.getName(), model.getId(), model.getGrade());
+    }
+}
+Test Class – Main.java
+package mvc;
+//Main.java
+public class Main {
+ public static void main(String[] args) {
+     // Step 1: Create model object
+     Student student = new Student("Gayathri", "S123", "A");
+     // Step 2: Create view object
+     StudentView view = new StudentView();
+     // Step 3: Create controller with model and view
+     StudentController controller = new StudentController(student, view);
+     // Step 4: Display initial data
+     controller.updateView();
+     // Step 5: Update student data via controller
+     controller.setStudentName("Sophia");
+     controller.setStudentGrade("A+");
+     // Step 6: Display updated data
+     controller.updateView();
+ }
+}
+
+Output
+ 
+Exercise 11: Implementing Dependency Injection
+ 
+Define Repository Interface
+// CustomerRepository.java
+public interface CustomerRepository {
+    Customer findCustomerById(String id);
+}
+Implement Concrete Repository
+package dep;
+//CustomerRepositoryImpl.java
+public class CustomerRepositoryImpl implements CustomerRepository {
+ @Override
+ public Customer findCustomerById(String id) {
+     // Dummy data for demonstration
+     return new Customer(id, "Francis", "francis@yahoo.com");
+ }
+}
+Define Model Class 
+// Customer.java
+public class Customer {
+    private final String id;
+    private final String name;
+    private final String email;
+    public Customer(String id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    
+    public void displayInfo() {
+        System.out.println("Customer ID   : " + id);
+        System.out.println("Customer Name : " + name);
+        System.out.println("Email         : " + email);
+    }
+}Define Service Class
+// CustomerService.java
+public class CustomerService {
+    private final CustomerRepository repository;
+    // Constructor Injection
+    public CustomerService(CustomerRepository repository) {
+        this.repository = repository;
+    }
+    public void showCustomer(String id) {
+        Customer customer = repository.findCustomerById(id);
+        if (customer != null) {
+            customer.displayInfo();
+        } else {
+            System.out.println("Customer not found.");
+        }
+    }
+}
+Test the Dependency Injection Implementation
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        // Inject dependency manually using constructor
+        CustomerRepository repo = new CustomerRepositoryImpl();
+        CustomerService service = new CustomerService(repo);
+        // Use service
+        service.showCustomer("C123");
+    }
+}
+Output
+ 
+
