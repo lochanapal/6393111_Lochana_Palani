@@ -1,0 +1,189 @@
+Exercise 1: Mocking and Stubbing
+Objective:
+Test a service method that relies on an external API by mocking and stubbing the return value.
+import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.mockito.Mockito;
+
+public class MyServiceTest {
+
+    @Test
+    public void testExternalApi() {
+        ExternalApi mockApi = Mockito.mock(ExternalApi.class);
+        when(mockApi.getData()).thenReturn("Mock Data");
+
+        MyService service = new MyService(mockApi);
+        String result = service.fetchData();
+
+        assertEquals("Mock Data", result);
+    }
+}
+
+ Exercise 2: Verifying Interactions
+Objective:
+Ensure that a method was actually called on the mock with correct interaction.
+import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+public class MyServiceTest {
+
+    @Test
+    public void testVerifyInteraction() {
+        ExternalApi mockApi = Mockito.mock(ExternalApi.class);
+
+        MyService service = new MyService(mockApi);
+        service.fetchData();
+
+        verify(mockApi).getData();
+    }
+}
+
+ Exercise 3: Argument Matching
+Objective:
+Verify that a method is called with specific arguments using argument matchers.
+import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MyServiceTest {
+
+    @Test
+    public void testArgumentMatching() {
+        ExternalApi mockApi = Mockito.mock(ExternalApi.class);
+        when(mockApi.getDataById(anyInt())).thenReturn("Mock Response");
+
+        MyService service = new MyService(mockApi);
+        String result = service.fetchDataById(5);
+
+        assertEquals("Mock Response", result);
+        verify(mockApi).getDataById(eq(5));
+    }
+}
+
+ Exercise 4: Handling Void Methods
+Objective:
+Test a void method that performs an action without return.
+import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+
+public class MyServiceTest {
+
+    @Test
+    public void testVoidMethod() {
+        ExternalApi mockApi = Mockito.mock(ExternalApi.class);
+        doNothing().when(mockApi).sendData(anyString());
+
+        MyService service = new MyService(mockApi);
+        service.sendDataToApi("Test");
+
+        verify(mockApi).sendData("Test");
+    }
+}
+ Exercise 5: Mocking and Stubbing with Multiple Returns
+Objective:
+Test a method that returns different values on consecutive calls.
+import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MyServiceTest {
+
+    @Test
+    public void testMultipleReturns() {
+        ExternalApi mockApi = Mockito.mock(ExternalApi.class);
+        when(mockApi.getData()).thenReturn("First Call", "Second Call", "Third Call");
+
+        MyService service = new MyService(mockApi);
+
+        assertEquals("First Call", service.fetchData());
+        assertEquals("Second Call", service.fetchData());
+        assertEquals("Third Call", service.fetchData());
+    }
+}
+
+ Exercise 6: Verifying Interaction Order
+Objective:
+Ensure methods are called in a specific sequence.
+import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
+
+public class MyServiceTest {
+
+    @Test
+    public void testInteractionOrder() {
+        ExternalApi mockApi = Mockito.mock(ExternalApi.class);
+
+        MyService service = new MyService(mockApi);
+        service.process();
+
+        InOrder inOrder = inOrder(mockApi);
+        inOrder.verify(mockApi).initialize();
+        inOrder.verify(mockApi).getData();
+        inOrder.verify(mockApi).cleanup();
+    }
+}
+
+ Exercise 7: Handling Void Methods with Exceptions
+Objective:
+Test a void method that throws an exception.
+import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MyServiceTest {
+
+    @Test
+    public void testVoidMethodThrowsException() {
+        ExternalApi mockApi = Mockito.mock(ExternalApi.class);
+        doThrow(new RuntimeException("Error")).when(mockApi).sendData(anyString());
+
+        MyService service = new MyService(mockApi);
+
+        assertThrows(RuntimeException.class, () -> {
+            service.sendDataToApi("Test");
+        });
+
+        verify(mockApi).sendData("Test");
+    }
+}
+📄 Supporting Classes
+Add these two classes at the end of your submission so the tests can compile.
+// ExternalApi.java
+public interface ExternalApi {
+    String getData();
+    String getDataById(int id);
+    void sendData(String data);
+    void initialize();
+    void cleanup();
+}
+// MyService.java
+public class MyService {
+    private ExternalApi api;
+
+    public MyService(ExternalApi api) {
+        this.api = api;
+    }
+
+    public String fetchData() {
+        return api.getData();
+    }
+
+    public String fetchDataById(int id) {
+        return api.getDataById(id);
+    }
+
+    public void sendDataToApi(String data) {
+        api.sendData(data);
+    }
+
+    public void process() {
+        api.initialize();
+        api.getData();
+        api.cleanup();
+    }
+}
+
