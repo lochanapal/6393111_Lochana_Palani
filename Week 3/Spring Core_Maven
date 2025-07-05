@@ -1,0 +1,277 @@
+
+ Exercise 1: Configuring a Basic Spring Application
+Objective: Set up a basic Spring application using XML configuration.
+📁 pom.xml (Spring Core Dependency)
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context</artifactId>
+    <version>5.2.9.RELEASE</version>
+</dependency>
+
+📄 applicationContext.xml (src/main/resources)
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans 
+         http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="bookRepository" class="com.library.repository.BookRepository"/>
+    <bean id="bookService" class="com.library.service.BookService">
+        <property name="bookRepository" ref="bookRepository"/>
+    </bean>
+
+</beans>
+📄 BookRepository.java
+package com.library.repository;
+public class BookRepository {
+    public void saveBook() {
+        System.out.println("Book saved to database.");
+    }
+}
+📄 BookService.java
+package com.library.service;
+
+import com.library.repository.BookRepository;
+
+public class BookService {
+    private BookRepository bookRepository;
+
+    public void setBookRepository(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    public void addBook() {
+        bookRepository.saveBook();
+        System.out.println("Book added by service.");
+    }
+}
+📄 LibraryManagementApplication.java
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import com.library.service.BookService;
+
+public class LibraryManagementApplication {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        BookService service = context.getBean("bookService", BookService.class);
+        service.addBook();
+    }
+}
+ Exercise 2: Implementing Dependency Injection
+Objective: Implement setter-based DI using Spring’s IoC container.
+Already completed in applicationContext.xml and BookService above. Running the main class demonstrates successful injection.
+ Exercise 3: Implementing Logging with Spring AOP
+Objective: Log method execution times using AOP.
+
+📁 pom.xml (Add AOP
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-aop</artifactId>
+    <version>5.2.9.RELEASE</version>
+</dependency>
+<dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjweaver</artifactId>
+    <version>1.9.6</version>
+</dependency>
+
+📄 LoggingAspect.java
+package com.library.aspect;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.*;
+
+@Aspect
+public class LoggingAspect {
+
+    @Around("execution(* com.library.service.*.*(..))")
+    public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
+        long start = System.currentTimeMillis();
+        Object obj = joinPoint.proceed();
+        long end = System.currentTimeMillis();
+        System.out.println("Execution time: " + (end - start) + " ms");
+        return obj;
+    }
+}
+
+📄 Update applicationContext.xml
+<aop:aspectj-autoproxy/>
+<bean id="loggingAspect" class="com.library.aspect.LoggingAspect"/>
+Make sure to include:
+xmlns:aop="http://www.springframework.org/schema/aop"
+xsi:schemaLocation="
+    ...
+    http://www.springframework.org/schema/aop 
+    http://www.springframework.org/schema/aop/spring-aop.xsd"
+ Exercise 4: Creating and Configuring a Maven Project
+Objective: Create Maven project and add Spring dependencies.
+📁 pom.xml (Add plugins and dependencies)
+<properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+</properties>
+
+<dependencies>
+    <!-- Spring Core, AOP, WebMVC -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>5.2.9.RELEASE</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
+        <version>5.2.9.RELEASE</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-aop</artifactId>
+        <version>5.2.9.RELEASE</version>
+    </dependency>
+</dependencies>
+
+ Exercise 5: Configuring the Spring IoC Container
+Same as Exercises 1 and 2 (applicationContext.xml and DI).
+
+ Exercise 6: Configuring Beans with Annotations
+Objective: Replace XML configuration with annotations.
+
+📄 applicationContext.xml
+<context:component-scan base-package="com.library"/>
+<context:annotation-config/>
+Include in xmlns:
+xmlns:context="http://www.springframework.org/schema/context"
+http://www.springframework.org/schema/context 
+http://www.springframework.org/schema/context/spring-context.xsd
+
+📄 BookService.java
+package com.library.service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.library.repository.BookRepository;
+@Service
+public class BookService {
+
+    @Autowired
+    private BookRepository bookRepository;
+
+    public void addBook() {
+        bookRepository.saveBook();
+    }
+}
+
+📄 BookRepository.java
+package com.library.repository;
+import org.springframework.stereotype.Repository;
+@Repository
+public class BookRepository {
+    public void saveBook() {
+        System.out.println("Book saved.");
+    }
+}
+
+ Exercise 7: Constructor and Setter Injection
+📄 applicationContext.xml
+<bean id="bookRepository" class="com.library.repository.BookRepository"/>
+<bean id="bookService" class="com.library.service.BookService">
+    <constructor-arg ref="bookRepository"/>
+    <property name="name" value="Library Service"/>
+</bean>
+
+📄 BookService.java
+package com.library.service;
+import com.library.repository.BookRepository;
+
+public class BookService {
+    private BookRepository bookRepository;
+    private String name;
+
+    public BookService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void addBook() {
+        System.out.println("Using service: " + name);
+        bookRepository.saveBook();
+    }
+}
+ Exercise 8: Basic AOP with Spring
+Same as Exercise 3. Add additional @Before, @After if needed.
+
+
+@Before("execution(* com.library.service.*.*(..))")
+public void beforeMethod() {
+    System.out.println("Before method execution");
+}
+
+@After("execution(* com.library.service.*.*(..))")
+public void afterMethod() {
+    System.out.println("After method execution");
+}
+ Exercise 9: Creating a Spring Boot Application
+Objective: Use Spring Boot for rapid application development.
+
+📄 Dependencies (Spring Initializr)
+•	Spring Web
+•	Spring Data JPA
+•	H2 Database
+
+📄 application.properties
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+spring.jpa.hibernate.ddl-auto=update
+
+📄 Book.java
+package com.library.model;
+import jakarta.persistence.*;
+
+@Entity
+public class Book {
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String title;
+}
+📄 BookRepository.java
+package com.library.repository;
+import com.library.model.Book;
+import org.springframework.data.jpa.repository.JpaRepository;
+public interface BookRepository extends JpaRepository<Book, Long> {}
+📄 BookController.java
+package com.library.controller;
+import com.library.model.Book;
+import com.library.repository.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+@RestController
+@RequestMapping("/books")
+public class BookController {
+    @Autowired
+    private BookRepository bookRepo;
+    @GetMapping
+    public List<Book> getAllBooks() {
+        return bookRepo.findAll();
+    }
+    @PostMapping
+    public Book addBook(@RequestBody Book book) {
+        return bookRepo.save(book);
+    }
+}
+
+📄 LibraryManagementApplication.java
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class LibraryManagementApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(LibraryManagementApplication.class, args);
+    }
+}
+
