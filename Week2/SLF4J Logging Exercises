@@ -1,0 +1,78 @@
+ Dependencies (pom.xml)
+<dependencies>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.30</version>
+    </dependency>
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.3</version>
+    </dependency>
+</dependencies>
+ Exercise 1: Logging Error Messages and Warning Levels
+Objective:
+Log error and warning messages using SLF4J and Logback.
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public class LoggingExample {
+    private static final Logger logger = LoggerFactory.getLogger(LoggingExample.class);
+    public static void main(String[] args) {
+        logger.error("This is an error message");
+        logger.warn("This is a warning message");
+    }
+}
+
+ Exercise 2: Parameterized Logging
+Objective:
+Demonstrate parameterized logging to include variables in log messages.
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public class ParameterizedLoggingExample {
+    private static final Logger logger = LoggerFactory.getLogger(ParameterizedLoggingExample.class);
+    public static void main(String[] args) {
+        String username = "lochanap";
+        int loginAttempts = 3;
+        logger.info("User {} attempted to login {} times", username, loginAttempts);
+        logger.warn("User {} has exceeded the login threshold of {}", username, 2);
+    }
+}
+
+ Exercise 3: Using Different Appenders
+Objective:
+Log messages using both console and file appenders using a custom logback.xml.
+🔧 logback.xml Configuration
+<configuration>
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="file" class="ch.qos.logback.core.FileAppender">
+        <file>logs/app.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="console" />
+        <appender-ref ref="file" />
+    </root>
+</configuration>
+
+🧪  Class for Testing Appenders
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public class AppenderDemo {
+    private static final Logger logger = LoggerFactory.getLogger(AppenderDemo.class);
+    public static void main(String[] args) {
+        logger.info("This message will be logged to both console and file.");
+        logger.debug("Debug level log captured by both appenders.");
+        logger.error("This is a sample error message.");
+    }
+}
+
